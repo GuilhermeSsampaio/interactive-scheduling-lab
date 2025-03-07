@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Programming } from './ProgrammingModal';
+import { Programming } from '@/types/programmingTypes';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 

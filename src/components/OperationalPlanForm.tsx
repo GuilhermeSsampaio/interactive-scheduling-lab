@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import RadioGroup from './RadioGroup';
 import DatePicker from './DatePicker';
 import { Button } from './ui/button';
 import { Check, X } from 'lucide-react';
-import { Programming } from './ProgrammingModal';
+import { Programming } from '@/types/programmingTypes';
 import Select from './Select';
 import ExperimentCard from './ExperimentCard';
 
