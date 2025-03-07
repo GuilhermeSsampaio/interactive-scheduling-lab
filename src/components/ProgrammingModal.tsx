@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -226,7 +225,7 @@ export type Programming = {
   name: string;
   startDate: Date;
   endDate: Date;
-  experiment: string;
+  experiment?: string;
   resources: Resource[];
 };
 
@@ -241,7 +240,6 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
   const [name, setName] = useState(editingProgramming?.name || '');
   const [startDate, setStartDate] = useState<Date | undefined>(editingProgramming?.startDate);
   const [endDate, setEndDate] = useState<Date | undefined>(editingProgramming?.endDate);
-  const [experiment, setExperiment] = useState(editingProgramming?.experiment || '');
   const [resources, setResources] = useState<Resource[]>(editingProgramming?.resources || []);
   
   // Resource selection state
@@ -256,14 +254,12 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
       setName(editingProgramming.name);
       setStartDate(editingProgramming.startDate);
       setEndDate(editingProgramming.endDate);
-      setExperiment(editingProgramming.experiment);
       setResources(editingProgramming.resources);
     } else {
       // Only reset when not editing
       setName('');
       setStartDate(undefined);
       setEndDate(undefined);
-      setExperiment('');
       setResources([]);
     }
   }, [editingProgramming, open]);
@@ -276,13 +272,12 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
   };
 
   const handleSave = () => {
-    if (name && startDate && endDate && experiment) {
+    if (name && startDate && endDate) {
       onSave({
         id: editingProgramming?.id || Date.now().toString(),
         name,
         startDate,
         endDate,
-        experiment,
         resources,
       });
       onOpenChange(false);
@@ -544,16 +539,6 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Selecione o Experimento</label>
-            <Select
-              options={experimentOptions}
-              value={experiment}
-              onChange={setExperiment}
-              placeholder="Selecione um experimento"
-            />
-          </div>
-
           <div className="border-t pt-6">
             <h3 className="text-base font-medium mb-4">Adicionar Recursos</h3>
             
@@ -707,7 +692,7 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
             type="button"
             onClick={handleSave}
             className="btn-primary"
-            disabled={!name || !startDate || !endDate || !experiment}
+            disabled={!name || !startDate || !endDate}
           >
             <Check className="mr-2 h-4 w-4" />
             {editingProgramming ? 'Salvar' : 'Adicionar Programação'}
@@ -719,3 +704,4 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
 };
 
 export default ProgrammingModal;
+

@@ -5,7 +5,6 @@ import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasToasted, setHasToasted] = useState(false);
   
   const handleSubmit = (data: any) => {
     setIsSubmitting(true);
@@ -14,15 +13,11 @@ const Index = () => {
     setTimeout(() => {
       console.log('Form data submitted:', data);
       
-      // Only show toast once
-      if (!hasToasted) {
-        toast({
-          title: "Plano operacional cadastrado",
-          description: "O plano operacional foi cadastrado com sucesso!",
-          duration: 3000,
-        });
-        setHasToasted(true);
-      }
+      toast({
+        title: "Plano operacional cadastrado",
+        description: "O plano operacional foi cadastrado com sucesso!",
+        duration: 3000,
+      });
       
       setIsSubmitting(false);
     }, 1000);

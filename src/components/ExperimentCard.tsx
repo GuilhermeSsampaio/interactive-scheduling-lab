@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -72,7 +71,14 @@ const ExperimentCard = ({
   };
 
   const handleSaveProgramming = (programming: Programming) => {
-    onAddProgramming(currentExperimentId, programming);
+    const experiment = experiments.find(exp => exp.id === currentExperimentId);
+    
+    const programmingWithExperiment = {
+      ...programming,
+      experiment: experiment?.value || ''
+    };
+    
+    onAddProgramming(currentExperimentId, programmingWithExperiment);
   };
 
   const handleDeleteProgramming = (experimentId: string, programmingId: string) => {
@@ -151,3 +157,4 @@ const ExperimentCard = ({
 };
 
 export default ExperimentCard;
+
