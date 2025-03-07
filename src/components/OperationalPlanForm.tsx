@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RadioGroup from './RadioGroup';
 import DatePicker from './DatePicker';
 import { Button } from './ui/button';
-import { Check, X } from 'lucide-react';
+import { Check, X, ArrowLeft } from 'lucide-react';
 import { Programming } from '@/types/programmingTypes';
 import Select from './Select';
 import ExperimentCard from './ExperimentCard';
+import { OperationalPlan } from '@/store/operationalPlansStore';
 
 // Mock data for project types
 const projectTypeOptions = [
@@ -16,11 +17,13 @@ const projectTypeOptions = [
 ];
 
 type OperationalPlanFormProps = {
+  initialData?: OperationalPlan | null;
+  isEditing?: boolean;
   onSubmit?: (data: any) => void;
   onCancel?: () => void;
 };
 
-const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) => {
+const OperationalPlanForm = ({ initialData, isEditing = false, onSubmit, onCancel }: OperationalPlanFormProps) => {
   // Form state
   const [projectType, setProjectType] = useState('');
   const [hasAvailableResources, setHasAvailableResources] = useState('sim');
@@ -40,6 +43,16 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
   // Experiments and programmings state
   const [experimentProgrammings, setExperimentProgrammings] = useState<Record<string, Programming[]>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize form with initial data if editing
+  useEffect(() => {
+    if (initialData && isEditing) {
+      setProjectType(initialData.projectType || '');
+      setExecutionStartDate(initialData.executionStartDate);
+      setExecutionEndDate(initialData.executionEndDate);
+      setProjectSummary(initialData.title || '');
+    }
+  }, [initialData, isEditing]);
 
   const handleAddProgramming = (experimentId: string, programming: Programming) => {
     setExperimentProgrammings(prev => {
@@ -112,7 +125,20 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white rounded-lg border shadow-sm p-6">
-        <h2 className="text-xl font-bold text-app-blue mb-6">Cadastrar Novo Plano Operacional</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-app-blue">
+            {isEditing ? 'Editar Plano Operacional' : 'Cadastrar Novo Plano Operacional'}
+          </h2>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            className="flex items-center"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar para lista
+          </Button>
+        </div>
         
         <div className="space-y-6">
           <div className="p-5 border rounded-lg space-y-4">
@@ -335,7 +361,7 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
           disabled={isSubmitting}
         >
           <Check className="mr-2 h-4 w-4" />
-          {isSubmitting ? 'Salvando...' : 'Salvar'}
+          {isSubmitting ? 'Salvando...' : isEditing ? 'Atualizar' : 'Salvar'}
         </Button>
       </div>
     </form>
