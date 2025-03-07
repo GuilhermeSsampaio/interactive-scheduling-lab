@@ -5,6 +5,7 @@ import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasToasted, setHasToasted] = useState(false);
   
   const handleSubmit = (data: any) => {
     setIsSubmitting(true);
@@ -12,11 +13,17 @@ const Index = () => {
     // Simulate API call
     setTimeout(() => {
       console.log('Form data submitted:', data);
-      toast({
-        title: "Plano operacional cadastrado",
-        description: "O plano operacional foi cadastrado com sucesso!",
-        duration: 5000,
-      });
+      
+      // Only show toast once
+      if (!hasToasted) {
+        toast({
+          title: "Plano operacional cadastrado",
+          description: "O plano operacional foi cadastrado com sucesso!",
+          duration: 3000,
+        });
+        setHasToasted(true);
+      }
+      
       setIsSubmitting(false);
     }, 1000);
   };
@@ -27,7 +34,7 @@ const Index = () => {
       title: "Operação cancelada",
       description: "O cadastro do plano operacional foi cancelado.",
       variant: "destructive",
-      duration: 5000,
+      duration: 3000,
     });
   };
   

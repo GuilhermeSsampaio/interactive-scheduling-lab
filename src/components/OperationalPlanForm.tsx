@@ -5,7 +5,6 @@ import DatePicker from './DatePicker';
 import { Button } from './ui/button';
 import { Check, X } from 'lucide-react';
 import { Programming } from './ProgrammingModal';
-import ProgrammingTimeline from './ProgrammingTimeline';
 import Select from './Select';
 import ExperimentCard from './ExperimentCard';
 
@@ -41,14 +40,7 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
   
   // Experiments and programmings state
   const [experimentProgrammings, setExperimentProgrammings] = useState<Record<string, Programming[]>>({});
-
-  const getAllProgrammings = () => {
-    const allProgrammings: Programming[] = [];
-    Object.values(experimentProgrammings).forEach(programmings => {
-      allProgrammings.push(...programmings);
-    });
-    return allProgrammings;
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddProgramming = (experimentId: string, programming: Programming) => {
     setExperimentProgrammings(prev => {
@@ -76,13 +68,22 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
       
       updatedProgrammings[experimentId] = existingProgrammings.filter(p => p.id !== programmingId);
       
+      // If no more programmings for this experiment, clean up
+      if (updatedProgrammings[experimentId].length === 0) {
+        delete updatedProgrammings[experimentId];
+      }
+      
       return updatedProgrammings;
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit?.({
+    
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
+    const formData = {
       projectType,
       hasAvailableResources,
       annualBudget,
@@ -98,7 +99,15 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
       assistanceDetails,
       projectSummary,
       experimentProgrammings,
-    });
+    };
+    
+    // Call the onSubmit handler with form data
+    onSubmit?.(formData);
+    
+    // Reset submission state after a short delay
+    setTimeout(() => {
+      setIsSubmitting(false);
+    }, 1000);
   };
 
   return (
@@ -308,12 +317,6 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
               onDeleteProgramming={handleDeleteProgramming}
               experimentProgrammings={experimentProgrammings}
             />
-            
-            {Object.keys(experimentProgrammings).length > 0 && getAllProgrammings().length > 0 && (
-              <div className="mt-8 pt-6 border-t animate-fade-in">
-                <ProgrammingTimeline programmings={getAllProgrammings()} />
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -330,9 +333,10 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
         <Button
           type="submit"
           className="btn-primary"
+          disabled={isSubmitting}
         >
           <Check className="mr-2 h-4 w-4" />
-          Salvar
+          {isSubmitting ? 'Salvando...' : 'Salvar'}
         </Button>
       </div>
     </form>
