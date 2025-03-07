@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Programming } from './ProgrammingModal';
+import { Programming } from '@/types/programmingTypes';
 import { Button } from './ui/button';
 import { format } from 'date-fns';
 import { Calendar, Edit, Plus, Trash2 } from 'lucide-react';

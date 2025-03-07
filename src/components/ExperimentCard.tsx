@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import Select from './Select';
 import ProgrammingModal from './ProgrammingModal';
-import { Programming } from './ProgrammingModal';
+import { Programming } from '@/types/programmingTypes';
 import ProgrammingList from './ProgrammingList';
 
 // Mock data for experiment options
@@ -157,4 +157,3 @@ const ExperimentCard = ({
 };
 
 export default ExperimentCard;
-
