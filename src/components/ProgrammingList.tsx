@@ -12,6 +12,7 @@ type ProgrammingListProps = {
   onEditProgramming: (programming: Programming) => void;
   onDeleteProgramming: (id: string) => void;
   className?: string;
+  hideAddButton?: boolean;
 };
 
 const ProgrammingList = ({
@@ -20,6 +21,7 @@ const ProgrammingList = ({
   onEditProgramming,
   onDeleteProgramming,
   className,
+  hideAddButton = false,
 }: ProgrammingListProps) => {
   // Function to get experiment display name
   const getExperimentName = (value: string): string => {
@@ -27,6 +29,12 @@ const ProgrammingList = ({
       'teste-variedades': 'Teste de novas variedades de culturas agrícolas',
       'resistencia-pragas': 'Avaliação de resistência a pragas',
       'analise-solos': 'Análise de crescimento em diferentes solos',
+      'fertilizantes-adubos': 'Avaliação de eficiência de fertilizantes e adubos',
+      'controle-pragas': 'Pesquisa sobre controle biológico de pragas',
+      'tecnicas-irrigacao': 'Estudo de técnicas de irrigação para otimização do uso da água',
+      'conservacao-solo': 'Desenvolvimento de práticas de conservação do solo',
+      'cultivares-resistentes': 'Teste de cultivares resistentes a mudanças climáticas',
+      'qualidade-nutricional': 'Análise da qualidade nutricional de alimentos produzidos',
     };
     
     return experiments[value] || value;
@@ -34,13 +42,15 @@ const ProgrammingList = ({
 
   return (
     <div className={cn('space-y-4', className)}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800">Programações do Plano Operacional</h3>
-        <Button onClick={onAddProgramming} className="btn-primary">
-          <Plus className="mr-2 h-4 w-4" />
-          Criar Nova Programação
-        </Button>
-      </div>
+      {!hideAddButton && (
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-800">Programações do Plano Operacional</h3>
+          <Button onClick={onAddProgramming} className="btn-primary">
+            <Plus className="mr-2 h-4 w-4" />
+            Criar Nova Programação
+          </Button>
+        </div>
+      )}
 
       {programmings.length > 0 ? (
         <div className="grid gap-4 animate-fade-in">
@@ -74,6 +84,8 @@ const ProgrammingList = ({
                             {resource.type === 'lab' && 'Lab'}
                             {' • '}
                             {resource.item}
+                            {resource.fields?.['Quilometragem'] && ` • ${resource.fields['Quilometragem']} km`}
+                            {resource.fields?.['Quantidade'] && ` • Qtd: ${resource.fields['Quantidade']}`}
                           </div>
                         ))}
                       </div>

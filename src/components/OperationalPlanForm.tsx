@@ -5,10 +5,9 @@ import DatePicker from './DatePicker';
 import { Button } from './ui/button';
 import { Check, X } from 'lucide-react';
 import { Programming } from './ProgrammingModal';
-import ProgrammingList from './ProgrammingList';
-import ProgrammingModal from './ProgrammingModal';
 import ProgrammingTimeline from './ProgrammingTimeline';
 import Select from './Select';
+import ExperimentCard from './ExperimentCard';
 
 // Mock data for project types
 const projectTypeOptions = [
@@ -40,31 +39,45 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
   const [assistanceDetails, setAssistanceDetails] = useState('');
   const [projectSummary, setProjectSummary] = useState('');
   
-  // Programmings state
-  const [programmings, setProgrammings] = useState<Programming[]>([]);
-  const [programmingModalOpen, setProgrammingModalOpen] = useState(false);
-  const [editingProgramming, setEditingProgramming] = useState<Programming | undefined>();
+  // Experiments and programmings state
+  const [experimentProgrammings, setExperimentProgrammings] = useState<Record<string, Programming[]>>({});
 
-  const handleAddProgramming = () => {
-    setEditingProgramming(undefined);
-    setProgrammingModalOpen(true);
+  const getAllProgrammings = () => {
+    const allProgrammings: Programming[] = [];
+    Object.values(experimentProgrammings).forEach(programmings => {
+      allProgrammings.push(...programmings);
+    });
+    return allProgrammings;
   };
 
-  const handleEditProgramming = (programming: Programming) => {
-    setEditingProgramming(programming);
-    setProgrammingModalOpen(true);
+  const handleAddProgramming = (experimentId: string, programming: Programming) => {
+    setExperimentProgrammings(prev => {
+      const existingProgrammings = prev[experimentId] || [];
+      const updatedProgrammings = {...prev};
+      
+      if (existingProgrammings.some(p => p.id === programming.id)) {
+        // Edit existing programming
+        updatedProgrammings[experimentId] = existingProgrammings.map(p => 
+          p.id === programming.id ? programming : p
+        );
+      } else {
+        // Add new programming
+        updatedProgrammings[experimentId] = [...existingProgrammings, programming];
+      }
+      
+      return updatedProgrammings;
+    });
   };
 
-  const handleDeleteProgramming = (id: string) => {
-    setProgrammings(programmings.filter((p) => p.id !== id));
-  };
-
-  const handleSaveProgramming = (programming: Programming) => {
-    if (editingProgramming) {
-      setProgrammings(programmings.map((p) => (p.id === programming.id ? programming : p)));
-    } else {
-      setProgrammings([...programmings, programming]);
-    }
+  const handleDeleteProgramming = (experimentId: string, programmingId: string) => {
+    setExperimentProgrammings(prev => {
+      const existingProgrammings = prev[experimentId] || [];
+      const updatedProgrammings = {...prev};
+      
+      updatedProgrammings[experimentId] = existingProgrammings.filter(p => p.id !== programmingId);
+      
+      return updatedProgrammings;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -84,7 +97,7 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
       needsAssistance,
       assistanceDetails,
       projectSummary,
-      programmings,
+      experimentProgrammings,
     });
   };
 
@@ -289,16 +302,16 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
           </div>
           
           <div className="p-5 border rounded-lg space-y-4">
-            <ProgrammingList
-              programmings={programmings}
+            <h3 className="text-base font-semibold">Experimentos e Programações</h3>
+            <ExperimentCard 
               onAddProgramming={handleAddProgramming}
-              onEditProgramming={handleEditProgramming}
               onDeleteProgramming={handleDeleteProgramming}
+              experimentProgrammings={experimentProgrammings}
             />
             
-            {programmings.length > 0 && (
+            {Object.keys(experimentProgrammings).length > 0 && getAllProgrammings().length > 0 && (
               <div className="mt-8 pt-6 border-t animate-fade-in">
-                <ProgrammingTimeline programmings={programmings} />
+                <ProgrammingTimeline programmings={getAllProgrammings()} />
               </div>
             )}
           </div>
@@ -322,13 +335,6 @@ const OperationalPlanForm = ({ onSubmit, onCancel }: OperationalPlanFormProps) =
           Salvar
         </Button>
       </div>
-      
-      <ProgrammingModal
-        open={programmingModalOpen}
-        onOpenChange={setProgrammingModalOpen}
-        onSave={handleSaveProgramming}
-        editingProgramming={editingProgramming}
-      />
     </form>
   );
 };
