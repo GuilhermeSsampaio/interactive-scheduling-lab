@@ -1,10 +1,13 @@
-
-import React from 'react';
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { X, Eye } from 'lucide-react';
-import { Resource } from '@/types/programmingTypes';
-import { resourceTypeOptions } from '@/data/resourceOptions';
-import { getCategoryOptions, getItemOptions, getOptionLabel } from '@/utils/resourceUtils';
+import { X, Eye } from "lucide-react";
+import { Resource } from "@/types/programmingTypes";
+import { resourceTypeOptions } from "@/data/resourceOptions";
+import {
+  getCategoryOptions,
+  getItemOptions,
+  getOptionLabel,
+} from "@/utils/resourceUtils";
 
 type ResourceListProps = {
   resources: Resource[];
@@ -12,29 +15,45 @@ type ResourceListProps = {
   readOnly?: boolean;
 };
 
-const ResourceList = ({ resources, onRemoveResource, readOnly = false }: ResourceListProps) => {
+const ResourceList = ({
+  resources,
+  onRemoveResource,
+  readOnly = false,
+}: ResourceListProps) => {
   if (!resources.length) return null;
 
   return (
-    <div className="border-t pt-6 animate-fade-in">
-      <h3 className="text-base font-medium mb-4">Recursos Adicionados</h3>
-      <div className="space-y-3">
+    <div className="border-t pt-4 animate-fade-in">
+      <h3 className="text-base font-medium mb-2">Recursos Adicionados</h3>
+      <div className="space-y-2">
         {resources.map((resource) => {
           const categoryOptions = getCategoryOptions(resource.type);
-          const itemOptions = getItemOptions(resource.type, resource.categoryValue);
-          
-          const categoryLabel = getOptionLabel(categoryOptions, resource.categoryValue);
+          const itemOptions = getItemOptions(
+            resource.type,
+            resource.categoryValue
+          );
+
+          const categoryLabel = getOptionLabel(
+            categoryOptions,
+            resource.categoryValue
+          );
           const itemLabel = getOptionLabel(itemOptions, resource.item);
           const typeLabel = getOptionLabel(resourceTypeOptions, resource.type);
-          
+
           return (
-            <div key={resource.id} className="flex justify-between items-start p-3 border rounded-md bg-gray-50">
-              <div>
+            <div
+              key={resource.id}
+              className="flex justify-between items-center p-2 border rounded-md bg-gray-50"
+            >
+              <div className="text-sm">
                 <div className="font-medium">{itemLabel}</div>
-                <div className="text-sm text-gray-600">
+                <div className="text-gray-600">
                   {typeLabel} • {categoryLabel}
                   {Object.entries(resource.fields).map(([key, value]) => (
-                    <span key={key}> • {key}: {value}</span>
+                    <span key={key}>
+                      {" "}
+                      • {key}: {value}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -48,9 +67,7 @@ const ResourceList = ({ resources, onRemoveResource, readOnly = false }: Resourc
                   <X className="h-4 w-4" />
                 </Button>
               )}
-              {readOnly && (
-                <Eye className="h-4 w-4 text-gray-400" />
-              )}
+              {/* {readOnly && <Eye className="h-4 w-4 text-gray-400" />} */}
             </div>
           );
         })}

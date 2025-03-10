@@ -7,7 +7,6 @@ import {
   ChevronDown,
   ChevronUp,
   Edit,
-  Eye,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -40,27 +39,6 @@ const ProgrammingList = ({
     {}
   );
 
-  // Function to get experiment display name
-  const getExperimentName = (value: string): string => {
-    const experiments: Record<string, string> = {
-      "teste-variedades": "Teste de novas variedades de culturas agrícolas",
-      "resistencia-pragas": "Avaliação de resistência a pragas",
-      "analise-solos": "Análise de crescimento em diferentes solos",
-      "fertilizantes-adubos":
-        "Avaliação de eficiência de fertilizantes e adubos",
-      "controle-pragas": "Pesquisa sobre controle biológico de pragas",
-      "tecnicas-irrigacao":
-        "Estudo de técnicas de irrigação para otimização do uso da água",
-      "conservacao-solo": "Desenvolvimento de práticas de conservação do solo",
-      "cultivares-resistentes":
-        "Teste de cultivares resistentes a mudanças climáticas",
-      "qualidade-nutricional":
-        "Análise da qualidade nutricional de alimentos produzidos",
-    };
-
-    return experiments[value] || value;
-  };
-
   const toggleCard = (id: string) => {
     setExpandedCards((prev) => ({
       ...prev,
@@ -91,9 +69,16 @@ const ProgrammingList = ({
               onOpenChange={() => toggleCard(programming.id)}
               className="border rounded-lg bg-white overflow-hidden"
             >
-              <div className="p-4 flex justify-between items-start">
+              <div className="p-4 flex justify-between items-center">
                 <div className="space-y-2">
-                  <h4 className="font-medium text-lg">{programming.name}</h4>
+                  <h4 className="font-medium text-lg flex items-center">
+                    {programming.name}
+                    {programming.resources.length > 0 && (
+                      <span className="ml-2 text-sm text-gray-600">
+                        (Recursos: {programming.resources.length})
+                      </span>
+                    )}
+                  </h4>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="h-4 w-4 mr-2" />
                     <span>
@@ -101,11 +86,6 @@ const ProgrammingList = ({
                       {format(programming.endDate, "dd/MM/yyyy")}
                     </span>
                   </div>
-                  {programming.resources.length > 0 && (
-                    <div className="pt-1 text-sm text-gray-600">
-                      Recursos ({programming.resources.length})
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex space-x-2">
