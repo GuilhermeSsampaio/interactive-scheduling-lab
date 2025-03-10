@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Programming } from '@/types/programmingTypes';
 import { Button } from './ui/button';
 import { format } from 'date-fns';
-import { Calendar, Edit, Eye, Plus, Trash2 } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp, Edit, Eye, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import ResourceList from './ResourceList';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 
 type ProgrammingListProps = {
   programmings: Programming[];
@@ -26,6 +27,7 @@ const ProgrammingList = ({
   hideAddButton = false,
 }: ProgrammingListProps) => {
   const [viewingResources, setViewingResources] = useState<Programming | null>(null);
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
 
   // Function to get experiment display name
   const getExperimentName = (value: string): string => {
@@ -44,6 +46,13 @@ const ProgrammingList = ({
     return experiments[value] || value;
   };
 
+  const toggleCard = (id: string) => {
+    setExpandedCards(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
   return (
     <div className={cn('space-y-4', className)}>
       {!hideAddButton && (
@@ -59,79 +68,94 @@ const ProgrammingList = ({
       {programmings.length > 0 ? (
         <div className="grid gap-4 animate-fade-in">
           {programmings.map((programming) => (
-            <div key={programming.id} className="border rounded-lg bg-white overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-4">
-                <div className="p-4 md:col-span-3 space-y-4">
-                  <div>
-                    <h4 className="font-medium text-lg">{programming.name}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{getExperimentName(programming.experiment)}</p>
-                  </div>
-                  
+            <Collapsible 
+              key={programming.id} 
+              open={expandedCards[programming.id]} 
+              onOpenChange={() => toggleCard(programming.id)}
+              className="border rounded-lg bg-white overflow-hidden"
+            >
+              <div className="p-4 flex justify-between items-start">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-lg">{programming.name}</h4>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="h-4 w-4 mr-2" />
                     <span>
                       {format(programming.startDate, 'dd/MM/yyyy')} até {format(programming.endDate, 'dd/MM/yyyy')}
                     </span>
                   </div>
-
                   {programming.resources.length > 0 && (
-                    <div className="pt-2">
-                      <h5 className="text-sm font-medium mb-2">Recursos ({programming.resources.length})</h5>
-                      <div className="flex flex-wrap gap-2">
-                        {programming.resources.map((resource) => (
-                          <div 
-                            key={resource.id}
-                            className="text-xs bg-app-lightBlue text-app-blue px-2 py-1 rounded-full"
-                          >
-                            {resource.type === 'campo' && 'Campo'}
-                            {resource.type === 'infra' && 'Infra'}
-                            {resource.type === 'lab' && 'Lab'}
-                            {' • '}
-                            {resource.item}
-                            {resource.fields?.['Quilometragem'] && ` • ${resource.fields['Quilometragem']} km`}
-                            {resource.fields?.['Quantidade'] && ` • Qtd: ${resource.fields['Quantidade']}`}
-                          </div>
-                        ))}
-                      </div>
+                    <div className="pt-1 text-sm text-gray-600">
+                      Recursos ({programming.resources.length})
                     </div>
                   )}
                 </div>
-
-                <div className="bg-gray-50 p-4 flex flex-col justify-center items-end gap-2 border-t md:border-t-0 md:border-l">
-                  <div className="flex flex-col w-full gap-2">
+                
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setViewingResources(programming);
+                    }}
+                    className="h-9 justify-center gap-1.5"
+                  >
+                    <Eye className="h-4 w-4" />
+                    Ver
+                  </Button>
+                  
+                  <CollapsibleTrigger asChild onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setViewingResources(programming)}
-                      className="h-9 w-full justify-center gap-1.5"
+                      className="h-9 justify-center gap-1.5"
                     >
-                      <Eye className="h-4 w-4" />
-                      Ver Recursos
+                      {expandedCards[programming.id] ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
                     </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEditProgramming(programming)}
-                      className="h-9 w-full justify-center gap-1.5"
-                    >
-                      <Edit className="h-4 w-4" />
-                      Editar
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onDeleteProgramming(programming.id)}
-                      className="h-9 w-full justify-center gap-1.5 text-app-orange border-app-orange hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Excluir
-                    </Button>
-                  </div>
+                  </CollapsibleTrigger>
                 </div>
               </div>
-            </div>
+              
+              <CollapsibleContent>
+                <div className="border-t">
+                  <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div className="col-span-2 md:col-span-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEditProgramming(programming)}
+                        className="h-9 w-full justify-center gap-1.5"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Editar
+                      </Button>
+                    </div>
+                    
+                    <div className="col-span-2 md:col-span-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onDeleteProgramming(programming.id)}
+                        className="h-9 w-full justify-center gap-1.5 text-app-orange border-app-orange hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Excluir
+                      </Button>
+                    </div>
+                    
+                    {programming.experiment && (
+                      <div className="col-span-2 mt-2 md:mt-0">
+                        <p className="text-sm text-gray-600">{getExperimentName(programming.experiment)}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           ))}
         </div>
       ) : (
@@ -173,3 +197,4 @@ const ProgrammingList = ({
 };
 
 export default ProgrammingList;
+
