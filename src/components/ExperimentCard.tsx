@@ -133,7 +133,6 @@ const ExperimentCard = ({
             </label>
             <Button
               onClick={handleAddExperiment}
-              variant="outline"
               className="h-9"
               disabled={!selectedExperiment}
             >
