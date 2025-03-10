@@ -122,8 +122,8 @@ const ProgrammingList = ({
               
               <CollapsibleContent>
                 <div className="border-t">
-                  <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="col-span-2 md:col-span-1">
+                  <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <div className="col-span-1">
                       <Button
                         variant="outline"
                         size="sm"
@@ -135,7 +135,7 @@ const ProgrammingList = ({
                       </Button>
                     </div>
                     
-                    <div className="col-span-2 md:col-span-1">
+                    <div className="col-span-1">
                       <Button
                         variant="outline"
                         size="sm"
@@ -143,14 +143,9 @@ const ProgrammingList = ({
                         className="h-9 w-full justify-center gap-1.5 text-app-orange border-app-orange hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
+                        Excluir
                       </Button>
                     </div>
-                    
-                    {programming.experiment && (
-                      <div className="col-span-2 mt-2 md:mt-0">
-                        <p className="text-sm text-gray-600">{getExperimentName(programming.experiment)}</p>
-                      </div>
-                    )}
                   </div>
                 </div>
               </CollapsibleContent>
