@@ -143,7 +143,6 @@ const ProgrammingList = ({
                         className="h-9 w-full justify-center gap-1.5 text-app-orange border-app-orange hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
-                        Excluir
                       </Button>
                     </div>
                     
@@ -197,4 +196,3 @@ const ProgrammingList = ({
 };
 
 export default ProgrammingList;
-
