@@ -9,7 +9,6 @@ import { Programming, Resource } from '@/types/programmingTypes';
 import { ResourceType, resourceTypeOptions } from '@/data/resourceOptions';
 import { getCategoryOptions, getItemOptions } from '@/utils/resourceUtils';
 import ResourceFieldsForm from './ResourceFieldsForm';
-import ResourceSummary from './ResourceSummary';
 import ResourceList from './ResourceList';
 
 type ProgrammingModalProps = {
@@ -195,13 +194,6 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
                 resourceItem={resourceItem}
                 resourceFields={resourceFields}
                 setResourceFields={setResourceFields}
-              />
-
-              <ResourceSummary
-                resourceType={resourceType}
-                resourceCategory={resourceCategory}
-                resourceItem={resourceItem}
-                resourceFields={resourceFields}
               />
 
               {resourceType && resourceCategory && resourceItem && (
