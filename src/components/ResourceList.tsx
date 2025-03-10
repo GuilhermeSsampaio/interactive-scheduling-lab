@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { X } from 'lucide-react';
+import { X, Eye } from 'lucide-react';
 import { Resource } from '@/types/programmingTypes';
 import { resourceTypeOptions } from '@/data/resourceOptions';
 import { getCategoryOptions, getItemOptions, getOptionLabel } from '@/utils/resourceUtils';
@@ -9,9 +9,10 @@ import { getCategoryOptions, getItemOptions, getOptionLabel } from '@/utils/reso
 type ResourceListProps = {
   resources: Resource[];
   onRemoveResource: (id: string) => void;
+  readOnly?: boolean;
 };
 
-const ResourceList = ({ resources, onRemoveResource }: ResourceListProps) => {
+const ResourceList = ({ resources, onRemoveResource, readOnly = false }: ResourceListProps) => {
   if (!resources.length) return null;
 
   return (
@@ -37,14 +38,19 @@ const ResourceList = ({ resources, onRemoveResource }: ResourceListProps) => {
                   ))}
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onRemoveResource(resource.id)}
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              {!readOnly && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onRemoveResource(resource.id)}
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+              {readOnly && (
+                <Eye className="h-4 w-4 text-gray-400" />
+              )}
             </div>
           );
         })}

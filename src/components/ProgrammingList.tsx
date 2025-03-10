@@ -1,9 +1,12 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Programming } from '@/types/programmingTypes';
 import { Button } from './ui/button';
 import { format } from 'date-fns';
-import { Calendar, Edit, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Edit, Eye, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import ResourceList from './ResourceList';
 
 type ProgrammingListProps = {
   programmings: Programming[];
@@ -22,6 +25,8 @@ const ProgrammingList = ({
   className,
   hideAddButton = false,
 }: ProgrammingListProps) => {
+  const [viewingResources, setViewingResources] = useState<Programming | null>(null);
+
   // Function to get experiment display name
   const getExperimentName = (value: string): string => {
     const experiments: Record<string, string> = {
@@ -92,25 +97,38 @@ const ProgrammingList = ({
                   )}
                 </div>
 
-                <div className="bg-gray-50 p-4 flex md:flex-col justify-end items-center md:items-end gap-2 border-t md:border-t-0 md:border-l">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEditProgramming(programming)}
-                    className="h-9 gap-1.5"
-                  >
-                    <Edit className="h-4 w-4" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onDeleteProgramming(programming.id)}
-                    className="h-9 gap-1.5 text-app-orange border-app-orange hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Excluir
-                  </Button>
+                <div className="bg-gray-50 p-4 flex flex-col justify-center items-end gap-2 border-t md:border-t-0 md:border-l">
+                  <div className="flex flex-col w-full gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setViewingResources(programming)}
+                      className="h-9 w-full justify-center gap-1.5"
+                    >
+                      <Eye className="h-4 w-4" />
+                      Ver Recursos
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEditProgramming(programming)}
+                      className="h-9 w-full justify-center gap-1.5"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Editar
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onDeleteProgramming(programming.id)}
+                      className="h-9 w-full justify-center gap-1.5 text-app-orange border-app-orange hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Excluir
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -125,6 +143,31 @@ const ProgrammingList = ({
           </Button>
         </div>
       )}
+
+      {/* Dialog for viewing resources */}
+      <Dialog open={!!viewingResources} onOpenChange={() => setViewingResources(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">
+              Recursos da Programação: {viewingResources?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {viewingResources && viewingResources.resources.length > 0 ? (
+              <ResourceList 
+                resources={viewingResources.resources}
+                onRemoveResource={() => {}} // Empty function as we're just viewing
+                readOnly={true}
+              />
+            ) : (
+              <div className="text-center py-6 border border-dashed rounded-md bg-gray-50">
+                <p className="text-gray-500">Nenhum recurso adicionado para esta programação</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
