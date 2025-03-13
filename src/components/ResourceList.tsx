@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X, Eye } from "lucide-react";
@@ -51,7 +52,7 @@ const ResourceList = ({
                 <div className="font-medium">{itemLabel}</div>
                 <div className="text-gray-600">
                   {typeLabel} • {categoryLabel}
-                  {Object.entries(resource.fields).map(([key, value]) => (
+                  {resource.fields && Object.entries(resource.fields).map(([key, value]) => (
                     <span key={key}>
                       {" "}
                       • {key}: {value}
@@ -69,7 +70,7 @@ const ResourceList = ({
                   <X className="h-4 w-4" />
                 </Button>
               )}
-              {/* {readOnly && <Eye className="h-4 w-4 text-gray-400" />} */}
+              {readOnly && <Eye className="h-4 w-4 text-gray-400" />}
             </div>
           );
         })}

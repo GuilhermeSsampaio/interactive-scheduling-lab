@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import RadioGroup from "./RadioGroup";
 import DatePicker from "./DatePicker";
 import { Button } from "./ui/button";
@@ -18,11 +19,15 @@ const projectTypeOptions = [
 type OperationalPlanFormProps = {
   onSubmit?: (data: any) => void;
   onCancel?: () => void;
+  isSubmitting?: boolean;
+  initialData?: any;
 };
 
 const OperationalPlanForm = ({
   onSubmit,
   onCancel,
+  isSubmitting = false,
+  initialData,
 }: OperationalPlanFormProps) => {
   // Form state
   const [projectType, setProjectType] = useState("");
@@ -48,7 +53,30 @@ const OperationalPlanForm = ({
   const [experimentProgrammings, setExperimentProgrammings] = useState<
     Record<string, Programming[]>
   >({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Initialize form with initial data if provided
+  useEffect(() => {
+    if (initialData) {
+      setProjectType(initialData.projectType || "");
+      setHasAvailableResources(initialData.hasAvailableResources || "sim");
+      setAnnualBudget(initialData.annualBudget || "");
+      setConsumptionMaterials(initialData.consumptionMaterials || "");
+      setInvestments(initialData.investments || "");
+      setFuel(initialData.fuel || "");
+      setAllowances(initialData.allowances || "");
+      setInsurance(initialData.insurance || "");
+      setResourceExecutionDate(initialData.resourceExecutionDate);
+      setExecutionStartDate(initialData.executionStartDate);
+      setExecutionEndDate(initialData.executionEndDate);
+      setNeedsAssistance(initialData.needsAssistance || "nao");
+      setAssistanceDetails(initialData.assistanceDetails || "");
+      setProjectSummary(initialData.projectSummary || "");
+      
+      if (initialData.experimentProgrammings) {
+        setExperimentProgrammings(initialData.experimentProgrammings);
+      }
+    }
+  }, [initialData]);
 
   const handleAddProgramming = (
     experimentId: string,
@@ -100,7 +128,6 @@ const OperationalPlanForm = ({
     e.preventDefault();
 
     if (isSubmitting) return;
-    setIsSubmitting(true);
 
     const formData = {
       projectType,
@@ -122,18 +149,13 @@ const OperationalPlanForm = ({
 
     // Call the onSubmit handler with form data
     onSubmit?.(formData);
-
-    // Reset submission state after a short delay
-    setTimeout(() => {
-      setIsSubmitting(false);
-    }, 1000);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white rounded-lg border shadow-sm p-6">
         <h2 className="text-xl font-bold text-app-blue mb-6">
-          Cadastrar Novo Plano Operacional
+          {initialData ? "Editar Plano Operacional" : "Cadastrar Novo Plano Operacional"}
         </h2>
 
         <div className="space-y-6">
@@ -376,7 +398,7 @@ const OperationalPlanForm = ({
         </div>
       </div>
 
-      <div className="flex itens-center justify-end space-x-4 mr-6">
+      <div className="flex items-center justify-end space-x-4 mr-6">
         <Button type="button" onClick={onCancel} className="btn-danger">
           <X className="mr-2 h-4 w-4" />
           Cancelar

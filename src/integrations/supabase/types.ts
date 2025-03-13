@@ -36,6 +36,71 @@ export type Database = {
         }
         Relationships: []
       }
+      programmings: {
+        Row: {
+          created_at: string
+          end_date: string
+          experiment: string | null
+          id: string
+          name: string
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          experiment?: string | null
+          id?: string
+          name: string
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          experiment?: string | null
+          id?: string
+          name?: string
+          start_date?: string
+        }
+        Relationships: []
+      }
+      resources: {
+        Row: {
+          category_value: string
+          created_at: string
+          fields: Json
+          id: string
+          item: string
+          programming_id: string
+          type: string
+        }
+        Insert: {
+          category_value: string
+          created_at?: string
+          fields?: Json
+          id?: string
+          item: string
+          programming_id: string
+          type: string
+        }
+        Update: {
+          category_value?: string
+          created_at?: string
+          fields?: Json
+          id?: string
+          item?: string
+          programming_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resources_programming_id_fkey"
+            columns: ["programming_id"]
+            isOneToOne: false
+            referencedRelation: "programmings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
