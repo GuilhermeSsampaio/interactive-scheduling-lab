@@ -22,6 +22,7 @@ const buttonVariants = cva(
         resource: "bg-[#ff5722] text-white hover:bg-[#ff5722]/90",
         save: "bg-[#1976d2] text-white hover:bg-[#1976d2]/90", 
         cancel: "bg-white text-black border border-gray-300 hover:bg-gray-50",
+        programming: "bg-[#4A5A71] text-white hover:bg-[#4A5A71]/90",
       },
       size: {
         default: "h-10 px-4 py-2",

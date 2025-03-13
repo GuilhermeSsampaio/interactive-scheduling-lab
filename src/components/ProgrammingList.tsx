@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Programming } from "@/types/programmingTypes";
 import { Button } from "./ui/button";
@@ -53,7 +54,7 @@ const ProgrammingList = ({
           <h3 className="text-lg font-semibold text-gray-800">
             Programações do Plano Operacional
           </h3>
-          <Button onClick={onAddProgramming} className="btn-primary">
+          <Button onClick={onAddProgramming} variant="programming">
             <Plus className="mr-2 h-4 w-4" />
             Criar Nova Programação
           </Button>
@@ -149,7 +150,7 @@ const ProgrammingList = ({
       ) : (
         <div className="text-center py-8 border border-dashed rounded-md bg-gray-50">
           <p className="text-gray-500">Nenhuma programação adicionada</p>
-          <Button onClick={onAddProgramming} variant="outline" className="mt-4">
+          <Button onClick={onAddProgramming} variant="programming" className="mt-4">
             <Plus className="mr-2 h-4 w-4" />
             Criar Nova Programação
           </Button>
