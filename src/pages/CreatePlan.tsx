@@ -15,7 +15,7 @@ const CreatePlan = () => {
     try {
       // Prepare the data for insertion
       const planData = {
-        name: data.projectSummary.substring(0, 100) || 'Novo Plano Operacional', // Use first 100 chars of summary as name
+        name: data.projectSummary.substring(0, 100) || 'Novo Plano Operacional',
         project_type: data.projectType,
         has_available_resources: data.hasAvailableResources === 'sim',
         annual_budget: data.annualBudget ? parseFloat(data.annualBudget) : null,
@@ -30,6 +30,9 @@ const CreatePlan = () => {
         needs_assistance: data.needsAssistance === 'sim',
         assistance_details: data.assistanceDetails,
         project_summary: data.projectSummary,
+        // Add required fields from the DB schema
+        start_date: data.executionStartDate || new Date(),
+        end_date: data.executionEndDate || new Date()
       };
       
       // Insert the plan

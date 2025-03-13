@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import OperationalPlanForm from '@/components/OperationalPlanForm';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { OperationalPlan } from '@/types/programmingTypes';
 
 const EditPlan = () => {
   const navigate = useNavigate();
@@ -30,6 +31,9 @@ const EditPlan = () => {
         
       if (error) throw error;
       
+      // Cast the plan data to the OperationalPlan type
+      const typedPlan = plan as OperationalPlan;
+      
       // Fetch the programming experiments
       const { data: experiments, error: experimentsError } = await supabase
         .from('programmings')
@@ -41,27 +45,27 @@ const EditPlan = () => {
           experiment,
           resources (*)
         `)
-        .eq('experiment', plan.name)
+        .eq('experiment', typedPlan.name)
         .order('created_at', { ascending: true });
         
       if (experimentsError) throw experimentsError;
       
       // Format the data for the form
       const formattedData = {
-        projectType: plan.project_type || '',
-        hasAvailableResources: plan.has_available_resources ? 'sim' : 'nao',
-        annualBudget: plan.annual_budget?.toString() || '',
-        consumptionMaterials: plan.consumption_materials?.toString() || '',
-        investments: plan.investments?.toString() || '',
-        fuel: plan.fuel?.toString() || '',
-        allowances: plan.allowances?.toString() || '',
-        insurance: plan.insurance?.toString() || '',
-        resourceExecutionDate: plan.resource_execution_date ? new Date(plan.resource_execution_date) : undefined,
-        executionStartDate: plan.execution_start_date ? new Date(plan.execution_start_date) : undefined,
-        executionEndDate: plan.execution_end_date ? new Date(plan.execution_end_date) : undefined,
-        needsAssistance: plan.needs_assistance ? 'sim' : 'nao',
-        assistanceDetails: plan.assistance_details || '',
-        projectSummary: plan.project_summary || '',
+        projectType: typedPlan.project_type || '',
+        hasAvailableResources: typedPlan.has_available_resources ? 'sim' : 'nao',
+        annualBudget: typedPlan.annual_budget?.toString() || '',
+        consumptionMaterials: typedPlan.consumption_materials?.toString() || '',
+        investments: typedPlan.investments?.toString() || '',
+        fuel: typedPlan.fuel?.toString() || '',
+        allowances: typedPlan.allowances?.toString() || '',
+        insurance: typedPlan.insurance?.toString() || '',
+        resourceExecutionDate: typedPlan.resource_execution_date ? new Date(typedPlan.resource_execution_date) : undefined,
+        executionStartDate: typedPlan.execution_start_date ? new Date(typedPlan.execution_start_date) : undefined,
+        executionEndDate: typedPlan.execution_end_date ? new Date(typedPlan.execution_end_date) : undefined,
+        needsAssistance: typedPlan.needs_assistance ? 'sim' : 'nao',
+        assistanceDetails: typedPlan.assistance_details || '',
+        projectSummary: typedPlan.project_summary || '',
         experimentProgrammings: {},
       };
       
@@ -119,7 +123,7 @@ const EditPlan = () => {
     try {
       // Prepare the data for update
       const planUpdateData = {
-        name: data.projectSummary.substring(0, 100) || 'Plano Operacional', // Use first 100 chars of summary as name
+        name: data.projectSummary.substring(0, 100) || 'Plano Operacional',
         project_type: data.projectType,
         has_available_resources: data.hasAvailableResources === 'sim',
         annual_budget: data.annualBudget ? parseFloat(data.annualBudget) : null,
@@ -134,6 +138,9 @@ const EditPlan = () => {
         needs_assistance: data.needsAssistance === 'sim',
         assistance_details: data.assistanceDetails,
         project_summary: data.projectSummary,
+        // Add required fields from DB schema if they're missing
+        start_date: data.executionStartDate || new Date(),
+        end_date: data.executionEndDate || new Date()
       };
       
       // Update the plan

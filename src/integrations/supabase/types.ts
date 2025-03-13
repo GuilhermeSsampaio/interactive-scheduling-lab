@@ -38,27 +38,69 @@ export type Database = {
       }
       programmings: {
         Row: {
+          allowances: number | null
+          annual_budget: number | null
+          assistance_details: string | null
+          consumption_materials: number | null
           created_at: string
           end_date: string
+          execution_end_date: string | null
+          execution_start_date: string | null
           experiment: string | null
+          fuel: number | null
+          has_available_resources: boolean | null
           id: string
+          insurance: number | null
+          investments: number | null
           name: string
+          needs_assistance: boolean | null
+          project_summary: string | null
+          project_type: string | null
+          resource_execution_date: string | null
           start_date: string
         }
         Insert: {
+          allowances?: number | null
+          annual_budget?: number | null
+          assistance_details?: string | null
+          consumption_materials?: number | null
           created_at?: string
           end_date: string
+          execution_end_date?: string | null
+          execution_start_date?: string | null
           experiment?: string | null
+          fuel?: number | null
+          has_available_resources?: boolean | null
           id?: string
+          insurance?: number | null
+          investments?: number | null
           name: string
+          needs_assistance?: boolean | null
+          project_summary?: string | null
+          project_type?: string | null
+          resource_execution_date?: string | null
           start_date: string
         }
         Update: {
+          allowances?: number | null
+          annual_budget?: number | null
+          assistance_details?: string | null
+          consumption_materials?: number | null
           created_at?: string
           end_date?: string
+          execution_end_date?: string | null
+          execution_start_date?: string | null
           experiment?: string | null
+          fuel?: number | null
+          has_available_resources?: boolean | null
           id?: string
+          insurance?: number | null
+          investments?: number | null
           name?: string
+          needs_assistance?: boolean | null
+          project_summary?: string | null
+          project_type?: string | null
+          resource_execution_date?: string | null
           start_date?: string
         }
         Relationships: []

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -18,16 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-type OperationalPlan = {
-  id: string;
-  name: string;
-  project_type: string;
-  annual_budget: number;
-  execution_start_date: string;
-  execution_end_date: string;
-  created_at: string;
-};
+import { OperationalPlan } from '@/types/programmingTypes';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -52,7 +42,8 @@ const Home = () => {
         throw error;
       }
 
-      setPlans(data || []);
+      // Cast the data to the OperationalPlan type
+      setPlans(data as OperationalPlan[]);
     } catch (error: any) {
       console.error('Erro ao buscar planos operacionais:', error.message);
       toast({
