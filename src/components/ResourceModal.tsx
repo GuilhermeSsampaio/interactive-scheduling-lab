@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -155,10 +154,10 @@ const ResourceModal = ({ open, onOpenChange, onAddResource }: ResourceModalProps
           )}
         </div>
 
-        <DialogFooter className="sm:justify-between">
+        <DialogFooter>
           <Button
             type="button"
-            variant="outline"
+            variant="cancel"
             onClick={() => onOpenChange(false)}
             className="btn-outline"
           >
@@ -168,6 +167,7 @@ const ResourceModal = ({ open, onOpenChange, onAddResource }: ResourceModalProps
           <Button
             type="button"
             onClick={handleAddResource}
+            variant="resource"
             className="btn-primary"
             disabled={!resourceType || !resourceItem}
           >

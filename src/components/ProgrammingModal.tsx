@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -196,7 +197,7 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
               />
 
               {resourceType && resourceCategory && resourceItem && (
-                <div className="mt-4 flex justify-end animate-fade-in">
+                <div className="mt-4 flex justify-start animate-fade-in">
                   <Button
                     type="button"
                     onClick={handleAddResource}
@@ -216,7 +217,7 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
           />
         </div>
 
-        <DialogFooter className="sm:justify-between">
+        <DialogFooter>
           <Button
             type="button"
             variant="cancel"
