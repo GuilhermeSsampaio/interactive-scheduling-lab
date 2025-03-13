@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -201,7 +200,7 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
                   <Button
                     type="button"
                     onClick={handleAddResource}
-                    className="btn-primary"
+                    variant="resource"
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     Adicionar Recurso
@@ -220,9 +219,8 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
         <DialogFooter className="sm:justify-between">
           <Button
             type="button"
-            variant="outline"
+            variant="cancel"
             onClick={() => onOpenChange(false)}
-            className="btn-outline"
           >
             <X className="mr-2 h-4 w-4" />
             Cancelar
@@ -230,7 +228,7 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
           <Button
             type="button"
             onClick={handleSave}
-            className="btn-primary"
+            variant="save"
             disabled={!name || !startDate || !endDate}
           >
             <Check className="mr-2 h-4 w-4" />

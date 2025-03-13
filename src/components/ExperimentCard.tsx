@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -134,6 +135,7 @@ const ExperimentCard = ({
             <Button
               onClick={handleAddExperiment}
               className="h-9"
+              variant="save"
               disabled={!selectedExperiment}
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -162,7 +164,7 @@ const ExperimentCard = ({
                 </h3>
                 <Button
                   onClick={() => handleAddProgramming(experiment.id)}
-                  className="btn-primary"
+                  variant="resource"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Adicionar Programação
