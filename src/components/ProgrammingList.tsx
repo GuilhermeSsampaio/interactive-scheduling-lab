@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Programming } from "@/types/programmingTypes";
 import { Button } from "./ui/button";
@@ -54,7 +53,11 @@ const ProgrammingList = ({
           <h3 className="text-lg font-semibold text-gray-800">
             Programações do Plano Operacional
           </h3>
-          <Button onClick={onAddProgramming} variant="programming">
+          <Button
+            onClick={onAddProgramming}
+            variant="programming"
+            type="button" // Adicione esta linha
+          >
             <Plus className="mr-2 h-4 w-4" />
             Criar Nova Programação
           </Button>
@@ -91,6 +94,7 @@ const ProgrammingList = ({
 
                 <div className="flex space-x-2">
                   <Button
+                    type="button" // Adicione esta linha
                     variant="outline"
                     size="sm"
                     onClick={() => onEditProgramming(programming)}
@@ -99,6 +103,7 @@ const ProgrammingList = ({
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
+                    type="button" // Adicione esta linha
                     variant="outline"
                     size="sm"
                     onClick={() => onDeleteProgramming(programming.id)}
@@ -113,6 +118,7 @@ const ProgrammingList = ({
                     <Button
                       variant="outline"
                       size="sm"
+                      type="button" // Adicione esta linha
                       className="h-9 justify-center gap-1.5"
                     >
                       {expandedCards[programming.id] ? (
@@ -150,7 +156,12 @@ const ProgrammingList = ({
       ) : (
         <div className="text-center py-8 border border-dashed rounded-md bg-gray-50">
           <p className="text-gray-500">Nenhuma programação adicionada</p>
-          <Button onClick={onAddProgramming} variant="programming" className="mt-4">
+          <Button
+            onClick={onAddProgramming}
+            variant="programming"
+            className="mt-4"
+            type="button" // Adicione esta linha
+          >
             <Plus className="mr-2 h-4 w-4" />
             Criar Nova Programação
           </Button>

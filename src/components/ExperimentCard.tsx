@@ -132,6 +132,7 @@ const ExperimentCard = ({
               Selecione o Experimento
             </label>
             <Button
+              type="button" // Adicione esta linha
               onClick={handleAddExperiment}
               className="h-9 bg-[#2D405A] text-white hover:bg-[#4A5A71]/90"
               variant="save"
@@ -162,6 +163,7 @@ const ExperimentCard = ({
                   {getExperimentName(experiment.value)}
                 </h3>
                 <Button
+                  type="button" // Adicione esta linha
                   onClick={() => handleAddProgramming(experiment.id)}
                   variant="resource"
                   className="h-9 bg-[#2D405A] text-white hover:bg-[#4A5A71]/90"
@@ -191,6 +193,7 @@ const ExperimentCard = ({
                     Nenhuma programação adicionada para este experimento
                   </p>
                   <Button
+                    type="button" // Adicione esta linha
                     onClick={() => handleAddProgramming(experiment.id)}
                     variant="outline"
                     className="mt-4"

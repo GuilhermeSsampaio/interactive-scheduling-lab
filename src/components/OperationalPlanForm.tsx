@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import RadioGroup from "./RadioGroup";
 import DatePicker from "./DatePicker";
@@ -71,7 +70,7 @@ const OperationalPlanForm = ({
       setNeedsAssistance(initialData.needsAssistance || "nao");
       setAssistanceDetails(initialData.assistanceDetails || "");
       setProjectSummary(initialData.projectSummary || "");
-      
+
       if (initialData.experimentProgrammings) {
         setExperimentProgrammings(initialData.experimentProgrammings);
       }
@@ -155,7 +154,9 @@ const OperationalPlanForm = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white rounded-lg border shadow-sm p-6">
         <h2 className="text-xl font-bold text-app-blue mb-6">
-          {initialData ? "Editar Plano Operacional" : "Cadastrar Novo Plano Operacional"}
+          {initialData
+            ? "Editar Plano Operacional"
+            : "Cadastrar Novo Plano Operacional"}
         </h2>
 
         <div className="space-y-6">
@@ -399,11 +400,20 @@ const OperationalPlanForm = ({
       </div>
 
       <div className="flex items-center justify-end space-x-4 mr-6">
-        <Button type="button" onClick={onCancel} className="btn-danger">
+        <Button
+          type="button"
+          onClick={onCancel}
+          className="btn-danger bg-white text-black"
+        >
           <X className="mr-2 h-4 w-4" />
           Cancelar
         </Button>
-        <Button type="submit" className="btn-primary" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          className="btn-primary "
+          style={{ backgroundColor: "#3888D7" }}
+          disabled={isSubmitting}
+        >
           <Check className="mr-2 h-4 w-4" />
           {isSubmitting ? "Salvando..." : "Salvar"}
         </Button>
