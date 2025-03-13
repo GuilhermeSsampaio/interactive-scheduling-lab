@@ -24,7 +24,9 @@ const ResourceList = ({
 
   return (
     <div className="border-t pt-4 animate-fade-in">
-      <h3 className="text-base font-medium mb-2">Recursos Adicionados</h3>
+      <h3 className="text-base font-medium mb-2">
+        Recursos Adicionados ({resources.length})
+      </h3>
       <div className="space-y-2">
         {resources.map((resource) => {
           const categoryOptions = getCategoryOptions(resource.type);
