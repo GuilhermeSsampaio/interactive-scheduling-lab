@@ -54,17 +54,15 @@ export type Database = {
         }
         Relationships: []
       }
-      programmings: {
+      operational_plans: {
         Row: {
           allowances: number | null
           annual_budget: number | null
           assistance_details: string | null
           consumption_materials: number | null
           created_at: string
-          end_date: string
           execution_end_date: string | null
           execution_start_date: string | null
-          experiment: string | null
           fuel: number | null
           has_available_resources: boolean | null
           id: string
@@ -75,7 +73,6 @@ export type Database = {
           project_summary: string | null
           project_type: string | null
           resource_execution_date: string | null
-          start_date: string
         }
         Insert: {
           allowances?: number | null
@@ -83,10 +80,8 @@ export type Database = {
           assistance_details?: string | null
           consumption_materials?: number | null
           created_at?: string
-          end_date: string
           execution_end_date?: string | null
           execution_start_date?: string | null
-          experiment?: string | null
           fuel?: number | null
           has_available_resources?: boolean | null
           id?: string
@@ -97,7 +92,6 @@ export type Database = {
           project_summary?: string | null
           project_type?: string | null
           resource_execution_date?: string | null
-          start_date: string
         }
         Update: {
           allowances?: number | null
@@ -105,10 +99,8 @@ export type Database = {
           assistance_details?: string | null
           consumption_materials?: number | null
           created_at?: string
-          end_date?: string
           execution_end_date?: string | null
           execution_start_date?: string | null
-          experiment?: string | null
           fuel?: number | null
           has_available_resources?: boolean | null
           id?: string
@@ -119,9 +111,46 @@ export type Database = {
           project_summary?: string | null
           project_type?: string | null
           resource_execution_date?: string | null
-          start_date?: string
         }
         Relationships: []
+      }
+      programmings: {
+        Row: {
+          created_at: string
+          end_date: string
+          experiment: string | null
+          id: string
+          name: string
+          plan_id: string | null
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          experiment?: string | null
+          id?: string
+          name: string
+          plan_id?: string | null
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          experiment?: string | null
+          id?: string
+          name?: string
+          plan_id?: string | null
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programmings_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "operational_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resources: {
         Row: {

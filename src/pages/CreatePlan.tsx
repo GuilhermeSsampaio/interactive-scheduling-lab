@@ -16,8 +16,8 @@ const CreatePlan = () => {
     try {
       console.log("Submitting data:", data);
       
-      // Prepare the data for insertion
-      const planData = {
+      // Step 1: Insert the operational plan
+      const operationalPlanData = {
         name: data.projectSummary.substring(0, 100) || 'Novo Plano Operacional',
         project_type: data.projectType,
         has_available_resources: data.hasAvailableResources === 'sim',
@@ -32,23 +32,26 @@ const CreatePlan = () => {
         execution_end_date: data.executionEndDate,
         needs_assistance: data.needsAssistance === 'sim',
         assistance_details: data.assistanceDetails,
-        project_summary: data.projectSummary,
-        // Add required fields from the DB schema
-        start_date: data.executionStartDate || new Date(),
-        end_date: data.executionEndDate || new Date()
+        project_summary: data.projectSummary
       };
       
-      // Insert the plan
-      const { data: insertedPlan, error } = await supabase
-        .from('programmings')
-        .insert(planData)
+      // Insert the operational plan
+      const { data: insertedPlan, error: planError } = await supabase
+        .from('operational_plans')
+        .insert(operationalPlanData)
         .select('id')
         .single();
         
-      if (error) throw error;
+      if (planError) throw planError;
       
-      // Now handle the experiment programmings
-      if (insertedPlan && data.experimentProgrammings) {
+      if (!insertedPlan) {
+        throw new Error("Failed to create operational plan");
+      }
+      
+      const planId = insertedPlan.id;
+      
+      // Step 2: Handle the experiment programmings
+      if (planId && data.experimentProgrammings) {
         for (const experimentId in data.experimentProgrammings) {
           const programmings = data.experimentProgrammings[experimentId];
           
@@ -56,7 +59,7 @@ const CreatePlan = () => {
             // Generate a valid UUID for the programming
             const programmingId = uuidv4();
             
-            // Insert the programming first
+            // Insert the programming with plan_id
             const { data: createdProgramming, error: programmingError } = await supabase
               .from('programmings')
               .insert({
@@ -65,6 +68,7 @@ const CreatePlan = () => {
                 start_date: programming.startDate,
                 end_date: programming.endDate,
                 experiment: programming.experiment,
+                plan_id: planId // Link programming to plan
               })
               .select('id')
               .single();
@@ -79,9 +83,9 @@ const CreatePlan = () => {
               throw new Error("Failed to get programming ID after insertion");
             }
             
-            // Insert the resources associated with this programming
+            // Step 3: Insert the resources associated with this programming
             if (programming.resources && programming.resources.length > 0) {
-              // Prepare resources with the confirmed programming_id
+              // Prepare resources with the programming_id
               const resourcesData = programming.resources.map((resource: any) => {
                 return {
                   id: uuidv4(), // Generate a new UUID for each resource
