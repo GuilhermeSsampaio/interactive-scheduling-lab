@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { X, Eye } from "lucide-react";
+import { X, Eye, Pencil, Trash } from "lucide-react";
 import { Resource } from "@/types/programmingTypes";
 import { resourceTypeOptions } from "@/data/resourceOptions";
 import {
@@ -9,6 +9,14 @@ import {
   getItemOptions,
   getOptionLabel,
 } from "@/utils/resourceUtils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type ResourceListProps = {
   resources: Resource[];
@@ -24,62 +32,73 @@ const ResourceList = ({
   if (!resources || !resources.length) return null;
 
   return (
-    <div className="border-t pt-4 animate-fade-in">
+    <div className="pt-4 animate-fade-in">
       <h3 className="text-base font-medium mb-2">
         Recursos Adicionados ({resources.length})
       </h3>
-      <div className="space-y-2">
-        {resources.map((resource) => {
-          // Make sure we have valid data before trying to render
-          if (!resource || !resource.type || !resource.categoryValue) {
-            console.warn("Invalid resource data:", resource);
-            return null;
-          }
-          
-          const categoryOptions = getCategoryOptions(resource.type);
-          const itemOptions = getItemOptions(
-            resource.type,
-            resource.categoryValue
-          );
+      <div className="border rounded-md overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Item</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Categoria</TableHead>
+              <TableHead>Detalhes</TableHead>
+              {!readOnly && <TableHead className="w-24">Ações</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {resources.map((resource) => {
+              // Make sure we have valid data before trying to render
+              if (!resource || !resource.type || !resource.categoryValue) {
+                console.warn("Invalid resource data:", resource);
+                return null;
+              }
+              
+              const categoryOptions = getCategoryOptions(resource.type);
+              const itemOptions = getItemOptions(
+                resource.type,
+                resource.categoryValue
+              );
 
-          const categoryLabel = getOptionLabel(
-            categoryOptions,
-            resource.categoryValue
-          );
-          const itemLabel = getOptionLabel(itemOptions, resource.item);
-          const typeLabel = getOptionLabel(resourceTypeOptions, resource.type);
+              const categoryLabel = getOptionLabel(
+                categoryOptions,
+                resource.categoryValue
+              );
+              const itemLabel = getOptionLabel(itemOptions, resource.item);
+              const typeLabel = getOptionLabel(resourceTypeOptions, resource.type);
 
-          return (
-            <div
-              key={resource.id}
-              className="flex justify-between items-center p-2 border rounded-md bg-gray-50"
-            >
-              <div className="text-sm">
-                <div className="font-medium">{itemLabel}</div>
-                <div className="text-gray-600">
-                  {typeLabel} • {categoryLabel}
-                  {resource.fields &&
-                    Object.entries(resource.fields).map(([key, value]) => (
-                      <span key={key}>
-                        {" "}
-                        • {key}: {value}
-                      </span>
-                    ))}
-                </div>
-              </div>
-              {!readOnly && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onRemoveResource(resource.id)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          );
-        })}
+              // Prepare details fields
+              const detailsContent = resource.fields 
+                ? Object.entries(resource.fields)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join(", ")
+                : "";
+
+              return (
+                <TableRow key={resource.id}>
+                  <TableCell className="font-medium">{itemLabel}</TableCell>
+                  <TableCell>{typeLabel}</TableCell>
+                  <TableCell>{categoryLabel}</TableCell>
+                  <TableCell className="text-sm text-gray-600">{detailsContent}</TableCell>
+                  {!readOnly && (
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onRemoveResource(resource.id)}
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash className="h-4 w-4" />
+                        <span className="sr-only">Remover</span>
+                      </Button>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
