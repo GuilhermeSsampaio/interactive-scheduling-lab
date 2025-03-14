@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -58,15 +57,18 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
     if (name && startDate && endDate) {
       const programmingId = editingProgramming?.id || uuidv4();
       
+      // Ensure all resources have valid UUIDs
+      const validResources = resources.map(resource => ({
+        ...resource,
+        id: resource.id || uuidv4()
+      }));
+      
       onSave({
         id: programmingId,
         name,
         startDate,
         endDate,
-        resources: resources.map(resource => ({
-          ...resource,
-          id: resource.id || uuidv4()
-        })),
+        resources: validResources,
       });
       
       onOpenChange(false);
@@ -76,7 +78,7 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
   const handleAddResource = () => {
     if (resourceType && resourceCategory && resourceItem) {
       const newResource: Resource = {
-        id: uuidv4(),
+        id: uuidv4(), // Always use uuidv4 for resource IDs
         type: resourceType,
         categoryValue: resourceCategory,
         item: resourceItem,

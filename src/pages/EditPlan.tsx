@@ -169,7 +169,7 @@ const EditPlan = () => {
             
             if (programming.id && typeof programming.id === 'string' && programming.id.includes('-')) {
               // Update existing programming
-              const { error: programmingError } = await supabase
+              const { data: updatedProgramming, error: programmingError } = await supabase
                 .from('programmings')
                 .update({
                   name: programming.name,
@@ -177,7 +177,9 @@ const EditPlan = () => {
                   end_date: programming.endDate,
                   experiment: programming.experiment,
                 })
-                .eq('id', programming.id);
+                .eq('id', programming.id)
+                .select('id')
+                .single();
                 
               if (programmingError) throw programmingError;
               
@@ -193,15 +195,16 @@ const EditPlan = () => {
                 
                 // Insert new resources
                 const resourcesData = programming.resources.map((resource: any) => ({
-                  programming_id: programming.id,
+                  id: uuidv4(), // Generate a new UUID for each resource
+                  programming_id: programming.id, // Use the programming ID from the update
                   type: resource.type,
                   category_value: resource.categoryValue,
                   item: resource.item,
                   fields: resource.fields || {},
-                  id: resource.id && typeof resource.id === 'string' && resource.id.includes('-') 
-                      ? resource.id 
-                      : uuidv4(), // Ensure we have a valid UUID
                 }));
+                
+                console.log("Inserting updated resources for programming:", programming.id);
+                console.log("Resources data:", resourcesData);
                 
                 const { error: resourcesError } = await supabase
                   .from('resources')
@@ -214,7 +217,7 @@ const EditPlan = () => {
               const programmingId = uuidv4();
               
               // Insert new programming
-              const { error: programmingError } = await supabase
+              const { data: createdProgramming, error: programmingError } = await supabase
                 .from('programmings')
                 .insert({
                   id: programmingId,
@@ -222,22 +225,29 @@ const EditPlan = () => {
                   start_date: programming.startDate,
                   end_date: programming.endDate,
                   experiment: programming.experiment,
-                });
+                })
+                .select('id')
+                .single();
                 
               if (programmingError) throw programmingError;
+              
+              if (!createdProgramming || !createdProgramming.id) {
+                throw new Error("Failed to get programming ID after insertion");
+              }
               
               // Insert the resources associated with this programming
               if (programming.resources && programming.resources.length > 0) {
                 const resourcesData = programming.resources.map((resource: any) => ({
-                  programming_id: programmingId,
+                  id: uuidv4(), // Generate a new UUID for each resource
+                  programming_id: createdProgramming.id, // Use the confirmed programming ID
                   type: resource.type,
                   category_value: resource.categoryValue,
                   item: resource.item,
                   fields: resource.fields || {},
-                  id: resource.id && typeof resource.id === 'string' && resource.id.includes('-') 
-                      ? resource.id 
-                      : uuidv4(), // Ensure we have a valid UUID
                 }));
+                
+                console.log("Inserting resources for new programming:", createdProgramming.id);
+                console.log("Resources data:", resourcesData);
                 
                 const { error: resourcesError } = await supabase
                   .from('resources')

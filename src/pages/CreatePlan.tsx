@@ -53,10 +53,11 @@ const CreatePlan = () => {
           const programmings = data.experimentProgrammings[experimentId];
           
           for (const programming of programmings) {
+            // Generate a valid UUID for the programming
             const programmingId = uuidv4();
             
-            // Insert the programming
-            const { error: programmingError } = await supabase
+            // Insert the programming first
+            const { data: createdProgramming, error: programmingError } = await supabase
               .from('programmings')
               .insert({
                 id: programmingId,
@@ -64,23 +65,27 @@ const CreatePlan = () => {
                 start_date: programming.startDate,
                 end_date: programming.endDate,
                 experiment: programming.experiment,
-              });
+              })
+              .select('id')
+              .single();
               
             if (programmingError) {
               console.error("Error inserting programming:", programmingError);
               throw programmingError;
             }
             
+            // Ensure we have the created programming ID
+            if (!createdProgramming || !createdProgramming.id) {
+              throw new Error("Failed to get programming ID after insertion");
+            }
+            
             // Insert the resources associated with this programming
             if (programming.resources && programming.resources.length > 0) {
-              // Ensure each resource has a valid UUID
+              // Prepare resources with the confirmed programming_id
               const resourcesData = programming.resources.map((resource: any) => {
-                // Generate a new UUID for each resource
-                const resourceId = uuidv4();
-                
                 return {
-                  id: resourceId,
-                  programming_id: programmingId,
+                  id: uuidv4(), // Generate a new UUID for each resource
+                  programming_id: createdProgramming.id, // Use the confirmed programming ID
                   type: resource.type,
                   category_value: resource.categoryValue,
                   item: resource.item,
@@ -88,7 +93,8 @@ const CreatePlan = () => {
                 };
               });
               
-              console.log("Inserting resources:", resourcesData);
+              console.log("Inserting resources with programming_id:", createdProgramming.id);
+              console.log("Resources data:", resourcesData);
               
               const { error: resourcesError } = await supabase
                 .from('resources')
