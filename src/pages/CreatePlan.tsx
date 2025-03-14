@@ -66,26 +66,38 @@ const CreatePlan = () => {
                 experiment: programming.experiment,
               });
               
-            if (programmingError) throw programmingError;
+            if (programmingError) {
+              console.error("Error inserting programming:", programmingError);
+              throw programmingError;
+            }
             
             // Insert the resources associated with this programming
             if (programming.resources && programming.resources.length > 0) {
-              const resourcesData = programming.resources.map((resource: any) => ({
-                programming_id: programmingId,
-                type: resource.type,
-                category_value: resource.categoryValue,
-                item: resource.item,
-                fields: resource.fields || {},
-                id: resource.id && typeof resource.id === 'string' && resource.id.includes('-') 
-                    ? resource.id 
-                    : uuidv4(), // Ensure we have a valid UUID
-              }));
+              // Ensure each resource has a valid UUID
+              const resourcesData = programming.resources.map((resource: any) => {
+                // Generate a new UUID for each resource
+                const resourceId = uuidv4();
+                
+                return {
+                  id: resourceId,
+                  programming_id: programmingId,
+                  type: resource.type,
+                  category_value: resource.categoryValue,
+                  item: resource.item,
+                  fields: resource.fields || {},
+                };
+              });
+              
+              console.log("Inserting resources:", resourcesData);
               
               const { error: resourcesError } = await supabase
                 .from('resources')
                 .insert(resourcesData);
                 
-              if (resourcesError) throw resourcesError;
+              if (resourcesError) {
+                console.error("Error inserting resources:", resourcesError);
+                throw resourcesError;
+              }
             }
           }
         }

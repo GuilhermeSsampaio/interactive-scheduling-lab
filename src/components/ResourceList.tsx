@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { X, Eye, Pencil, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import { Resource } from "@/types/programmingTypes";
 import { resourceTypeOptions } from "@/data/resourceOptions";
 import {

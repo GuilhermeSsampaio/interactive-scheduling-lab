@@ -10,6 +10,7 @@ import { ResourceType, resourceTypeOptions } from '@/data/resourceOptions';
 import { getCategoryOptions, getItemOptions } from '@/utils/resourceUtils';
 import ResourceFieldsForm from './ResourceFieldsForm';
 import ResourceList from './ResourceList';
+import { v4 as uuidv4 } from 'uuid';
 
 type ProgrammingModalProps = {
   open: boolean;
@@ -55,13 +56,19 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
 
   const handleSave = () => {
     if (name && startDate && endDate) {
+      const programmingId = editingProgramming?.id || uuidv4();
+      
       onSave({
-        id: editingProgramming?.id || Date.now().toString(),
+        id: programmingId,
         name,
         startDate,
         endDate,
-        resources,
+        resources: resources.map(resource => ({
+          ...resource,
+          id: resource.id || uuidv4()
+        })),
       });
+      
       onOpenChange(false);
     }
   };
@@ -69,13 +76,14 @@ const ProgrammingModal = ({ open, onOpenChange, onSave, editingProgramming }: Pr
   const handleAddResource = () => {
     if (resourceType && resourceCategory && resourceItem) {
       const newResource: Resource = {
-        id: Date.now().toString(),
+        id: uuidv4(),
         type: resourceType,
         categoryValue: resourceCategory,
         item: resourceItem,
         fields: resourceFields,
       };
       
+      console.log("Adding resource:", newResource);
       setResources([...resources, newResource]);
       resetResourceForm();
     }
