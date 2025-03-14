@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X, Eye } from "lucide-react";
@@ -20,7 +21,7 @@ const ResourceList = ({
   onRemoveResource,
   readOnly = false,
 }: ResourceListProps) => {
-  if (!resources.length) return null;
+  if (!resources || !resources.length) return null;
 
   return (
     <div className="border-t pt-4 animate-fade-in">
@@ -29,6 +30,12 @@ const ResourceList = ({
       </h3>
       <div className="space-y-2">
         {resources.map((resource) => {
+          // Make sure we have valid data before trying to render
+          if (!resource || !resource.type || !resource.categoryValue) {
+            console.warn("Invalid resource data:", resource);
+            return null;
+          }
+          
           const categoryOptions = getCategoryOptions(resource.type);
           const itemOptions = getItemOptions(
             resource.type,

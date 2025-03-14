@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import OperationalPlanForm from '@/components/OperationalPlanForm';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
 
 const CreatePlan = () => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ const CreatePlan = () => {
     setIsSubmitting(true);
     
     try {
+      console.log("Submitting data:", data);
+      
       // Prepare the data for insertion
       const planData = {
         name: data.projectSummary.substring(0, 100) || 'Novo Plano Operacional',
@@ -50,28 +53,32 @@ const CreatePlan = () => {
           const programmings = data.experimentProgrammings[experimentId];
           
           for (const programming of programmings) {
+            const programmingId = uuidv4();
+            
             // Insert the programming
-            const { data: insertedProgramming, error: programmingError } = await supabase
+            const { error: programmingError } = await supabase
               .from('programmings')
               .insert({
+                id: programmingId,
                 name: programming.name,
                 start_date: programming.startDate,
                 end_date: programming.endDate,
                 experiment: programming.experiment,
-              })
-              .select('id')
-              .single();
+              });
               
             if (programmingError) throw programmingError;
             
             // Insert the resources associated with this programming
-            if (insertedProgramming && programming.resources.length > 0) {
+            if (programming.resources && programming.resources.length > 0) {
               const resourcesData = programming.resources.map((resource: any) => ({
-                programming_id: insertedProgramming.id,
+                programming_id: programmingId,
                 type: resource.type,
                 category_value: resource.categoryValue,
                 item: resource.item,
-                fields: resource.fields,
+                fields: resource.fields || {},
+                id: resource.id && typeof resource.id === 'string' && resource.id.includes('-') 
+                    ? resource.id 
+                    : uuidv4(), // Ensure we have a valid UUID
               }));
               
               const { error: resourcesError } = await supabase

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -5,6 +6,7 @@ import Select from "./Select";
 import ProgrammingModal from "./ProgrammingModal";
 import { Programming } from "@/types/programmingTypes";
 import ProgrammingList from "./ProgrammingList";
+import { v4 as uuidv4 } from 'uuid';
 
 // Mock data for experiment options
 const experimentOptions = [
@@ -74,8 +76,9 @@ const ExperimentCard = ({
     );
     if (experimentExists) return;
 
+    // Use UUID instead of timestamp for unique identifier
     const newExperiment = {
-      id: `${selectedExperiment}-${Date.now()}`,
+      id: `${selectedExperiment}-${uuidv4()}`,
       value: selectedExperiment,
     };
 
@@ -103,8 +106,11 @@ const ExperimentCard = ({
       (exp) => exp.id === currentExperimentId
     );
 
+    // Create a new programming object with a valid UUID
     const programmingWithExperiment = {
       ...programming,
+      // If id doesn't exist or isn't a valid UUID, generate a new one
+      id: programming.id && programming.id.includes('-') ? programming.id : uuidv4(),
       experiment: experiment?.value || "",
     };
 
@@ -132,7 +138,7 @@ const ExperimentCard = ({
               Selecione o Experimento
             </label>
             <Button
-              type="button" // Adicione esta linha
+              type="button"
               onClick={handleAddExperiment}
               className="h-9 bg-[#2D405A] text-white hover:bg-[#4A5A71]/90"
               variant="save"
@@ -163,7 +169,7 @@ const ExperimentCard = ({
                   {getExperimentName(experiment.value)}
                 </h3>
                 <Button
-                  type="button" // Adicione esta linha
+                  type="button"
                   onClick={() => handleAddProgramming(experiment.id)}
                   variant="resource"
                   className="h-9 bg-[#2D405A] text-white hover:bg-[#4A5A71]/90"
@@ -193,7 +199,7 @@ const ExperimentCard = ({
                     Nenhuma programação adicionada para este experimento
                   </p>
                   <Button
-                    type="button" // Adicione esta linha
+                    type="button"
                     onClick={() => handleAddProgramming(experiment.id)}
                     variant="outline"
                     className="mt-4"

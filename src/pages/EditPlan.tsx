@@ -4,7 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import OperationalPlanForm from '@/components/OperationalPlanForm';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { OperationalPlan } from '@/types/programmingTypes';
+import { OperationalPlan, Resource } from '@/types/programmingTypes';
+import { v4 as uuidv4 } from 'uuid';
 
 const EditPlan = () => {
   const navigate = useNavigate();
@@ -50,6 +51,8 @@ const EditPlan = () => {
         
       if (experimentsError) throw experimentsError;
       
+      console.log("Fetched experiments:", experiments);
+      
       // Format the data for the form
       const formattedData = {
         projectType: typedPlan.project_type || '',
@@ -74,18 +77,20 @@ const EditPlan = () => {
         const experimentProgrammings: any = {};
         
         experiments.forEach(exp => {
-          const experimentId = `${exp.experiment}-${Date.now()}`;
+          // Create a unique experiment ID with a proper UUID
+          const experimentId = `${exp.experiment}-${uuidv4()}`;
           
           if (!experimentProgrammings[experimentId]) {
             experimentProgrammings[experimentId] = [];
           }
           
-          const resources = exp.resources.map((resource: any) => ({
-            id: resource.id,
+          // Make sure resources are properly typed
+          const resources: Resource[] = (exp.resources || []).map((resource: any) => ({
+            id: resource.id || uuidv4(),
             type: resource.type,
             categoryValue: resource.category_value,
             item: resource.item,
-            fields: resource.fields,
+            fields: resource.fields || {},
           }));
           
           experimentProgrammings[experimentId].push({
@@ -101,6 +106,7 @@ const EditPlan = () => {
         formattedData.experimentProgrammings = experimentProgrammings;
       }
       
+      console.log("Formatted data:", formattedData);
       setPlanData(formattedData);
     } catch (error: any) {
       console.error('Erro ao buscar dados do plano:', error.message);
@@ -121,6 +127,8 @@ const EditPlan = () => {
     setIsSubmitting(true);
     
     try {
+      console.log("Submitting data:", data);
+      
       // Prepare the data for update
       const planUpdateData = {
         name: data.projectSummary.substring(0, 100) || 'Plano Operacional',
@@ -151,16 +159,15 @@ const EditPlan = () => {
         
       if (error) throw error;
       
-      // Handle the experiment programmings (more complex - would require comparing existing with new)
-      // This is a simplified approach - in a real project, you'd need more careful synchronization
-      
-      // For this example, we'll just update the programmings that are directly related to this plan
+      // Handle the experiment programmings
       if (data.experimentProgrammings) {
         for (const experimentId in data.experimentProgrammings) {
           const programmings = data.experimentProgrammings[experimentId];
           
           for (const programming of programmings) {
-            if (programming.id) {
+            console.log("Processing programming:", programming);
+            
+            if (programming.id && typeof programming.id === 'string' && programming.id.includes('-')) {
               // Update existing programming
               const { error: programmingError } = await supabase
                 .from('programmings')
@@ -175,7 +182,7 @@ const EditPlan = () => {
               if (programmingError) throw programmingError;
               
               // Handle resources - delete existing and insert new ones
-              if (programming.resources.length > 0) {
+              if (programming.resources && programming.resources.length > 0) {
                 // Delete existing resources
                 const { error: deleteError } = await supabase
                   .from('resources')
@@ -190,7 +197,10 @@ const EditPlan = () => {
                   type: resource.type,
                   category_value: resource.categoryValue,
                   item: resource.item,
-                  fields: resource.fields,
+                  fields: resource.fields || {},
+                  id: resource.id && typeof resource.id === 'string' && resource.id.includes('-') 
+                      ? resource.id 
+                      : uuidv4(), // Ensure we have a valid UUID
                 }));
                 
                 const { error: resourcesError } = await supabase
@@ -200,28 +210,33 @@ const EditPlan = () => {
                 if (resourcesError) throw resourcesError;
               }
             } else {
+              // Generate a proper UUID for new programming
+              const programmingId = uuidv4();
+              
               // Insert new programming
-              const { data: insertedProgramming, error: programmingError } = await supabase
+              const { error: programmingError } = await supabase
                 .from('programmings')
                 .insert({
+                  id: programmingId,
                   name: programming.name,
                   start_date: programming.startDate,
                   end_date: programming.endDate,
                   experiment: programming.experiment,
-                })
-                .select('id')
-                .single();
+                });
                 
               if (programmingError) throw programmingError;
               
               // Insert the resources associated with this programming
-              if (insertedProgramming && programming.resources.length > 0) {
+              if (programming.resources && programming.resources.length > 0) {
                 const resourcesData = programming.resources.map((resource: any) => ({
-                  programming_id: insertedProgramming.id,
+                  programming_id: programmingId,
                   type: resource.type,
                   category_value: resource.categoryValue,
                   item: resource.item,
-                  fields: resource.fields,
+                  fields: resource.fields || {},
+                  id: resource.id && typeof resource.id === 'string' && resource.id.includes('-') 
+                      ? resource.id 
+                      : uuidv4(), // Ensure we have a valid UUID
                 }));
                 
                 const { error: resourcesError } = await supabase

@@ -36,6 +36,24 @@ export type Database = {
         }
         Relationships: []
       }
+      doencas: {
+        Row: {
+          descricao: string
+          id: number
+          nome: string
+        }
+        Insert: {
+          descricao: string
+          id?: number
+          nome: string
+        }
+        Update: {
+          descricao?: string
+          id?: number
+          nome?: string
+        }
+        Relationships: []
+      }
       programmings: {
         Row: {
           allowances: number | null
@@ -139,6 +157,35 @@ export type Database = {
             columns: ["programming_id"]
             isOneToOne: false
             referencedRelation: "programmings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      testemunhos: {
+        Row: {
+          descricao: string
+          doenca_id: number | null
+          id: number
+          titulo_testemunho: string
+        }
+        Insert: {
+          descricao: string
+          doenca_id?: number | null
+          id?: number
+          titulo_testemunho: string
+        }
+        Update: {
+          descricao?: string
+          doenca_id?: number | null
+          id?: number
+          titulo_testemunho?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_doenca"
+            columns: ["doenca_id"]
+            isOneToOne: false
+            referencedRelation: "doencas"
             referencedColumns: ["id"]
           },
         ]
