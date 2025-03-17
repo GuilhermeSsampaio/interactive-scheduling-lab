@@ -195,18 +195,21 @@ export type Database = {
           descricao: string
           doenca_id: number | null
           id: number
+          media_url: string | null
           titulo_testemunho: string
         }
         Insert: {
           descricao: string
           doenca_id?: number | null
           id?: number
+          media_url?: string | null
           titulo_testemunho: string
         }
         Update: {
           descricao?: string
           doenca_id?: number | null
           id?: number
+          media_url?: string | null
           titulo_testemunho?: string
         }
         Relationships: [

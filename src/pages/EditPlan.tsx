@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import OperationalPlanForm from '@/components/OperationalPlanForm';
 import { toast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { OperationalPlan, Resource } from '@/types/programmingTypes';
 import { v4 as uuidv4 } from 'uuid';
+import { getPlanById, getProgrammingsByPlanId, getResourcesByProgrammingId, updatePlan, saveProgrammings } from '@/utils/localStorage';
+import { OperationalPlan, Resource } from '@/types/programmingTypes';
 
 const EditPlan = () => {
   const navigate = useNavigate();
@@ -20,55 +20,37 @@ const EditPlan = () => {
     }
   }, [id]);
   
-  const fetchPlanData = async (planId: string) => {
+  const fetchPlanData = (planId: string) => {
     setIsLoading(true);
     try {
       // Fetch the operational plan
-      const { data: plan, error } = await supabase
-        .from('operational_plans')
-        .select('*')
-        .eq('id', planId)
-        .single();
-        
-      if (error) throw error;
+      const plan = getPlanById(planId);
       
-      // Cast the plan data to the OperationalPlan type
-      const typedPlan = plan as OperationalPlan;
+      if (!plan) {
+        throw new Error("Plan not found");
+      }
       
       // Fetch the programmings related to this plan
-      const { data: programmings, error: programmingsError } = await supabase
-        .from('programmings')
-        .select(`
-          id,
-          name,
-          start_date,
-          end_date,
-          experiment,
-          resources (*)
-        `)
-        .eq('plan_id', typedPlan.id)
-        .order('created_at', { ascending: true });
-        
-      if (programmingsError) throw programmingsError;
+      const programmings = getProgrammingsByPlanId(planId);
       
       console.log("Fetched programmings:", programmings);
       
       // Format the data for the form
       const formattedData = {
-        projectType: typedPlan.project_type || '',
-        hasAvailableResources: typedPlan.has_available_resources ? 'sim' : 'nao',
-        annualBudget: typedPlan.annual_budget?.toString() || '',
-        consumptionMaterials: typedPlan.consumption_materials?.toString() || '',
-        investments: typedPlan.investments?.toString() || '',
-        fuel: typedPlan.fuel?.toString() || '',
-        allowances: typedPlan.allowances?.toString() || '',
-        insurance: typedPlan.insurance?.toString() || '',
-        resourceExecutionDate: typedPlan.resource_execution_date ? new Date(typedPlan.resource_execution_date) : undefined,
-        executionStartDate: typedPlan.execution_start_date ? new Date(typedPlan.execution_start_date) : undefined,
-        executionEndDate: typedPlan.execution_end_date ? new Date(typedPlan.execution_end_date) : undefined,
-        needsAssistance: typedPlan.needs_assistance ? 'sim' : 'nao',
-        assistanceDetails: typedPlan.assistance_details || '',
-        projectSummary: typedPlan.project_summary || '',
+        projectType: plan.project_type || '',
+        hasAvailableResources: plan.has_available_resources ? 'sim' : 'nao',
+        annualBudget: plan.annual_budget?.toString() || '',
+        consumptionMaterials: plan.consumption_materials?.toString() || '',
+        investments: plan.investments?.toString() || '',
+        fuel: plan.fuel?.toString() || '',
+        allowances: plan.allowances?.toString() || '',
+        insurance: plan.insurance?.toString() || '',
+        resourceExecutionDate: plan.resource_execution_date ? new Date(plan.resource_execution_date) : undefined,
+        executionStartDate: plan.execution_start_date ? new Date(plan.execution_start_date) : undefined,
+        executionEndDate: plan.execution_end_date ? new Date(plan.execution_end_date) : undefined,
+        needsAssistance: plan.needs_assistance ? 'sim' : 'nao',
+        assistanceDetails: plan.assistance_details || '',
+        projectSummary: plan.project_summary || '',
         experimentProgrammings: {},
       };
       
@@ -76,7 +58,7 @@ const EditPlan = () => {
       if (programmings && programmings.length > 0) {
         const experimentProgrammings: any = {};
         
-        programmings.forEach(prog => {
+        programmings.forEach((prog: any) => {
           // Create a unique experiment ID based on the experiment name
           const experimentId = prog.experiment ? `${prog.experiment}-${uuidv4()}` : `programming-${uuidv4()}`;
           
@@ -84,8 +66,11 @@ const EditPlan = () => {
             experimentProgrammings[experimentId] = [];
           }
           
+          // Get resources for this programming
+          const resources = getResourcesByProgrammingId(prog.id);
+          
           // Make sure resources are properly typed
-          const resources: Resource[] = (prog.resources || []).map((resource: any) => ({
+          const typedResources: Resource[] = (resources || []).map((resource: any) => ({
             id: resource.id || uuidv4(),
             type: resource.type,
             categoryValue: resource.category_value,
@@ -99,7 +84,7 @@ const EditPlan = () => {
             startDate: new Date(prog.start_date),
             endDate: new Date(prog.end_date),
             experiment: prog.experiment,
-            resources,
+            resources: typedResources,
           });
         });
         
@@ -149,114 +134,11 @@ const EditPlan = () => {
       };
       
       // Update the operational plan
-      const { error: planError } = await supabase
-        .from('operational_plans')
-        .update(operationalPlanData)
-        .eq('id', id);
-        
-      if (planError) throw planError;
+      updatePlan(id, operationalPlanData);
       
       // Step 2: Handle the programmings
       if (data.experimentProgrammings) {
-        for (const experimentId in data.experimentProgrammings) {
-          const programmings = data.experimentProgrammings[experimentId];
-          
-          for (const programming of programmings) {
-            console.log("Processing programming:", programming);
-            
-            if (programming.id && typeof programming.id === 'string' && programming.id.includes('-')) {
-              // Update existing programming
-              const { data: updatedProgramming, error: programmingError } = await supabase
-                .from('programmings')
-                .update({
-                  name: programming.name,
-                  start_date: programming.startDate,
-                  end_date: programming.endDate,
-                  experiment: programming.experiment,
-                  plan_id: id // Ensure plan_id is set
-                })
-                .eq('id', programming.id)
-                .select('id')
-                .single();
-                
-              if (programmingError) throw programmingError;
-              
-              // Step 3: Update resources for this programming
-              if (programming.resources && programming.resources.length > 0) {
-                // Delete existing resources
-                const { error: deleteError } = await supabase
-                  .from('resources')
-                  .delete()
-                  .eq('programming_id', programming.id);
-                  
-                if (deleteError) throw deleteError;
-                
-                // Insert new resources
-                const resourcesData = programming.resources.map((resource: any) => ({
-                  id: uuidv4(), // Generate a new UUID for each resource
-                  programming_id: programming.id, // Use the programming ID from the update
-                  type: resource.type,
-                  category_value: resource.categoryValue,
-                  item: resource.item,
-                  fields: resource.fields || {},
-                }));
-                
-                console.log("Inserting updated resources for programming:", programming.id);
-                console.log("Resources data:", resourcesData);
-                
-                const { error: resourcesError } = await supabase
-                  .from('resources')
-                  .insert(resourcesData);
-                  
-                if (resourcesError) throw resourcesError;
-              }
-            } else {
-              // Add new programming
-              const programmingId = uuidv4();
-              
-              // Insert new programming linked to this plan
-              const { data: createdProgramming, error: programmingError } = await supabase
-                .from('programmings')
-                .insert({
-                  id: programmingId,
-                  name: programming.name,
-                  start_date: programming.startDate,
-                  end_date: programming.endDate,
-                  experiment: programming.experiment,
-                  plan_id: id // Link to this plan
-                })
-                .select('id')
-                .single();
-                
-              if (programmingError) throw programmingError;
-              
-              if (!createdProgramming || !createdProgramming.id) {
-                throw new Error("Failed to get programming ID after insertion");
-              }
-              
-              // Insert resources for this new programming
-              if (programming.resources && programming.resources.length > 0) {
-                const resourcesData = programming.resources.map((resource: any) => ({
-                  id: uuidv4(), // Generate a new UUID for each resource
-                  programming_id: createdProgramming.id, // Use the confirmed programming ID
-                  type: resource.type,
-                  category_value: resource.categoryValue,
-                  item: resource.item,
-                  fields: resource.fields || {},
-                }));
-                
-                console.log("Inserting resources for new programming:", createdProgramming.id);
-                console.log("Resources data:", resourcesData);
-                
-                const { error: resourcesError } = await supabase
-                  .from('resources')
-                  .insert(resourcesData);
-                  
-                if (resourcesError) throw resourcesError;
-              }
-            }
-          }
-        }
+        saveProgrammings(id, data.experimentProgrammings);
       }
       
       toast({

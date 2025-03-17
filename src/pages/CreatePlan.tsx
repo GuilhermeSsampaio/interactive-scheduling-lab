@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OperationalPlanForm from '@/components/OperationalPlanForm';
 import { toast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { v4 as uuidv4 } from 'uuid';
+import { savePlan, saveProgrammings } from '@/utils/localStorage';
 
 const CreatePlan = () => {
   const navigate = useNavigate();
@@ -36,13 +35,7 @@ const CreatePlan = () => {
       };
       
       // Insert the operational plan
-      const { data: insertedPlan, error: planError } = await supabase
-        .from('operational_plans')
-        .insert(operationalPlanData)
-        .select('id')
-        .single();
-        
-      if (planError) throw planError;
+      const insertedPlan = savePlan(operationalPlanData);
       
       if (!insertedPlan) {
         throw new Error("Failed to create operational plan");
@@ -50,67 +43,9 @@ const CreatePlan = () => {
       
       const planId = insertedPlan.id;
       
-      // Step 2: Handle the experiment programmings
+      // Step 2: Save programmings and resources
       if (planId && data.experimentProgrammings) {
-        for (const experimentId in data.experimentProgrammings) {
-          const programmings = data.experimentProgrammings[experimentId];
-          
-          for (const programming of programmings) {
-            // Generate a valid UUID for the programming
-            const programmingId = uuidv4();
-            
-            // Insert the programming with plan_id
-            const { data: createdProgramming, error: programmingError } = await supabase
-              .from('programmings')
-              .insert({
-                id: programmingId,
-                name: programming.name,
-                start_date: programming.startDate,
-                end_date: programming.endDate,
-                experiment: programming.experiment,
-                plan_id: planId // Link programming to plan
-              })
-              .select('id')
-              .single();
-              
-            if (programmingError) {
-              console.error("Error inserting programming:", programmingError);
-              throw programmingError;
-            }
-            
-            // Ensure we have the created programming ID
-            if (!createdProgramming || !createdProgramming.id) {
-              throw new Error("Failed to get programming ID after insertion");
-            }
-            
-            // Step 3: Insert the resources associated with this programming
-            if (programming.resources && programming.resources.length > 0) {
-              // Prepare resources with the programming_id
-              const resourcesData = programming.resources.map((resource: any) => {
-                return {
-                  id: uuidv4(), // Generate a new UUID for each resource
-                  programming_id: createdProgramming.id, // Use the confirmed programming ID
-                  type: resource.type,
-                  category_value: resource.categoryValue,
-                  item: resource.item,
-                  fields: resource.fields || {},
-                };
-              });
-              
-              console.log("Inserting resources with programming_id:", createdProgramming.id);
-              console.log("Resources data:", resourcesData);
-              
-              const { error: resourcesError } = await supabase
-                .from('resources')
-                .insert(resourcesData);
-                
-              if (resourcesError) {
-                console.error("Error inserting resources:", resourcesError);
-                throw resourcesError;
-              }
-            }
-          }
-        }
+        saveProgrammings(planId, data.experimentProgrammings);
       }
       
       toast({

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,6 @@ import { Plus, Edit, Trash2, FileText } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import { format } from 'date-fns';
-import { supabase } from '@/integrations/supabase/client';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { OperationalPlan } from '@/types/programmingTypes';
+import { getPlans, deletePlan } from '@/utils/localStorage';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -30,20 +31,11 @@ const Home = () => {
     fetchPlans();
   }, []);
 
-  const fetchPlans = async () => {
+  const fetchPlans = () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('programmings')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      // Cast the data to the OperationalPlan type
-      setPlans(data as OperationalPlan[]);
+      const plansData = getPlans();
+      setPlans(plansData);
     } catch (error: any) {
       console.error('Erro ao buscar planos operacionais:', error.message);
       toast({
@@ -69,25 +61,18 @@ const Home = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeletePlan = async () => {
+  const handleDeletePlan = () => {
     if (!planToDelete) return;
     
     try {
-      const { error } = await supabase
-        .from('programmings')
-        .delete()
-        .eq('id', planToDelete);
-
-      if (error) {
-        throw error;
-      }
+      deletePlan(planToDelete);
 
       toast({
         title: "Plano operacional excluído",
         description: "O plano operacional foi excluído com sucesso.",
       });
       
-      // Atualiza a lista de planos após exclusão
+      // Update plans list
       setPlans(plans.filter(plan => plan.id !== planToDelete));
     } catch (error: any) {
       console.error('Erro ao excluir plano operacional:', error.message);
@@ -157,8 +142,8 @@ const Home = () => {
                           ? `R$ ${Number(plan.annual_budget).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
                           : "-"}
                       </TableCell>
-                      <TableCell>{formatDate(plan.execution_start_date)}</TableCell>
-                      <TableCell>{formatDate(plan.execution_end_date)}</TableCell>
+                      <TableCell>{formatDate(plan.execution_start_date || "")}</TableCell>
+                      <TableCell>{formatDate(plan.execution_end_date || "")}</TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button 
