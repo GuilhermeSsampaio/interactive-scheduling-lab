@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,7 @@ const Home = () => {
   };
 
   const handleCreatePlan = () => {
-    navigate('/create');
+    navigate('/');  // Agora aponta para a rota principal
   };
 
   const handleEditPlan = (id: string) => {
